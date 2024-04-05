@@ -1,6 +1,9 @@
 #!/bin/bash
+PSQL="psql --username=freecodecamp --dbname=<database_name> -t --no-align -c"
 
 #randomly generate a number
+RANDOM_NO=$(( $RANDOM%1000 ))
+echo $RANDOM_NO
 #users have to guess that number
 ## prompt user for username (22 characters or less?)
 ## check database for that username
