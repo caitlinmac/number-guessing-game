@@ -11,7 +11,7 @@ read USERNAME_ENTERRED
 echo enterred $USERNAME_ENTERRED
 ## check database for that username
 USERNAME_CHECK=$($PSQL "SELECT * FROM players_stats WHERE username='$USERNAME_ENTERRED';")
-  #IFS=$'|'
+  #IFS=$'|' <-- this was causing a lot of problems before! big bug fix here, -t in the PSQL above means that it is tab delimited.
 echo "$USERNAME_CHECK" | while read USER_ID USERNAME GAMES_PLAYED BEST_GAME
 do
   echo "new var" $USERNAME $GAMES_PLAYED $BEST_GAME
@@ -20,7 +20,7 @@ done
 if [[ -z $USERNAME_CHECK ]]
 then
   #if username query is blank
-  #add user to db <-- HAVING ISSUES WITH THIS LINE!!!!!
+  #add user to db
   ADD_NEW_USER=$($PSQL "INSERT INTO players_stats(username) VALUES('$USERNAME_ENTERRED');")
   #welcome message to new user
   echo Welcome, $USERNAME_ENTERRED! It looks like this is your first time here. 
@@ -33,7 +33,7 @@ fi
 #THE GAME
 echo Guess the secret number between 1 and 1000:
 
-###start loop here?
+##start loop here
 for (( i=1; i<1000; i++ ))
 do
   GUESS_COUNT=$i
@@ -57,11 +57,11 @@ do
       #add to game counter
       CURRENT_GAME_COUNT=$($PSQL "SELECT games_played FROM players_stats WHERE username='$USERNAME_ENTERRED';")
       echo current game count $CURRENT_GAME_COUNT
-      NEW_GAME_COUNT=$CURRENT_GAME_COUNT+1
+      NEW_GAME_COUNT=$(( $CURRENT_GAME_COUNT + 1 ))
       echo new game count $NEW_GAME_COUNT
-      UPDATE_GAME_COUNT = $($PSQL "INSERT INTO players_stats(games_played) VALUES ($NEW_GAME_COUNT) WHERE username='$USERNAME_ENTERRED';")
+      UPDATE_GAME_COUNT=$($PSQL "INSERT INTO players_stats(games_played) VALUES ($NEW_GAME_COUNT) WHERE username='$USERNAME_ENTERRED';")
       #exit loop
-      i=1001
+      i=$(( $i + 1000 ))
 
   #if less than number, echo and +1 on the guess counter
   elif [[ $RANDOM_NO -lt $GUESS ]]
