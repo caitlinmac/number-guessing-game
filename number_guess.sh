@@ -22,9 +22,10 @@ then
   #if username query is blank
   #add user to db
   ADD_NEW_USER=$($PSQL "INSERT INTO players_stats(username) VALUES('$USERNAME_ENTERRED');")
-  #welcome message to new user
-  echo Welcome, $USERNAME_ENTERRED! It looks like this is your first time here. 
-  #if username query not blank, welcome back
+
+  #welcome message to new user using the username you just added to the db
+  echo Welcome, "$($PSQL "SELECT username FROM players_stats WHERE username='$USERNAME_ENTERRED';")"! It looks like this is your first time here. 
+
 else
   ## display games_played and best_game
   echo Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses.
@@ -50,16 +51,22 @@ do
   then 
     echo You guessed it in $GUESS_COUNT tries. The secret number was $RANDOM_NO. Nice job!
   #check if score is better than previous 
-    if [[ $GUESS_COUNT -lt $BEST_GAME ]]
+    ## if no previous, set current as best score
+    if [[ -z $BEST_GAME ]]
+    then
+    FIRST_SCORE=$($PSQL "UPDATE players_stats SET best_game=$GUESS_COUNT WHERE username='$USERNAME_ENTERRED';")
+
+    elif [[ $GUESS_COUNT -lt $BEST_GAME ]]
     then 
-      NEW_HIGH_SCORE=$($PSQL "INSERT INTO players_stats(best_game) VALUES ($GUESS_COUNT) WHERE username='$USERNAME_ENTERRED';")
+      echo $GUESS_COUNT is better than 
+      NEW_HIGH_SCORE=$($PSQL "UPDATE players_stats SET best_game=$GUESS_COUNT WHERE username='$USERNAME_ENTERRED';")
     fi
       #add to game counter
       CURRENT_GAME_COUNT=$($PSQL "SELECT games_played FROM players_stats WHERE username='$USERNAME_ENTERRED';")
       echo current game count $CURRENT_GAME_COUNT
       NEW_GAME_COUNT=$(( $CURRENT_GAME_COUNT + 1 ))
       echo new game count $NEW_GAME_COUNT
-      UPDATE_GAME_COUNT=$($PSQL "INSERT INTO players_stats(games_played) VALUES ($NEW_GAME_COUNT) WHERE username='$USERNAME_ENTERRED';")
+      UPDATE_GAME_COUNT=$($PSQL "UPDATE players_stats SET games_played=$NEW_GAME_COUNT WHERE username='$USERNAME_ENTERRED';")
       #exit loop
       i=$(( $i + 1000 ))
 
