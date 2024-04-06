@@ -8,14 +8,17 @@ echo $RANDOM_NO
 ## prompt user for username
 echo Enter your username:
 read USERNAME_ENTERRED
-echo enterred $USERNAME_ENTERRED
+#echo enterred $USERNAME_ENTERRED
 ## check database for that username
 USERNAME_CHECK=$($PSQL "SELECT * FROM players_stats WHERE username='$USERNAME_ENTERRED';")
-  #IFS=$'|' <-- this was causing a lot of problems before! big bug fix here, -t in the PSQL above means that it is tab delimited.
-echo "$USERNAME_CHECK" | while read USER_ID USERNAME GAMES_PLAYED BEST_GAME
-do
-  echo "new var" $USERNAME $GAMES_PLAYED $BEST_GAME
-done
+echo $USERNAME_CHECK
+  #IFS=$'|' #<-- this was causing a lot of problems before! big bug fix here, -t in the PSQL above means that it is tab delimited.
+  ##^^ okay except now its needed? ugh
+#echo "$USERNAME_CHECK" | while read USER_ID BAR USERNAME BAR GAMES_PLAYED BAR BEST_GAME
+#do
+  #echo "new var" $USERNAME $GAMES_PLAYED $BEST_GAME
+#done
+
 
 if [[ -z $USERNAME_CHECK ]]
 then
@@ -28,7 +31,14 @@ then
 
 else
   ## display games_played and best_game
-  echo Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses.
+
+  #IFS=$'|'
+  #echo $USERNAME_CHECK | while read USER_ID USERNAME GAMES_PLAYED BEST_GAME
+  #do
+  # echo "new var" $USERNAME $GAMES_PLAYED $BEST_GAME
+  # echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
+  #done
+  echo "Welcome back, $($PSQL "SELECT username FROM players_stats WHERE username='$USERNAME_ENTERRED';")! You have played $($PSQL "SELECT games_played FROM players_stats WHERE username='$USERNAME_ENTERRED';") games, and your best game took $($PSQL "SELECT best_game FROM players_stats WHERE username='$USERNAME_ENTERRED';") guesses."
 fi
 
 #THE GAME
@@ -54,6 +64,7 @@ do
     ## if no previous, set current as best score
     if [[ -z $BEST_GAME ]]
     then
+
     FIRST_SCORE=$($PSQL "UPDATE players_stats SET best_game=$GUESS_COUNT WHERE username='$USERNAME_ENTERRED';")
 
     elif [[ $GUESS_COUNT -lt $BEST_GAME ]]
@@ -81,4 +92,5 @@ do
     echo "It's higher than that, guess again:"
     
   fi
+
 done
