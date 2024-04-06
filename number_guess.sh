@@ -11,7 +11,7 @@ read USERNAME_ENTERRED
 #echo enterred $USERNAME_ENTERRED
 ## check database for that username
 USERNAME_CHECK=$($PSQL "SELECT * FROM players_stats WHERE username='$USERNAME_ENTERRED';")
-echo $USERNAME_CHECK
+#echo $USERNAME_CHECK
   #IFS=$'|' #<-- this was causing a lot of problems before! big bug fix here, -t in the PSQL above means that it is tab delimited.
   ##^^ okay except now its needed? ugh
 #echo "$USERNAME_CHECK" | while read USER_ID BAR USERNAME BAR GAMES_PLAYED BAR BEST_GAME
@@ -49,7 +49,7 @@ for (( i=1; i<1000; i++ ))
 do
   GUESS_COUNT=$i
   read GUESS
-  echo Guess number $GUESS_COUNT
+  #echo Guess number $GUESS_COUNT
 
   #if not int = redo
   if [[ ! $GUESS =~ [0-9]+ ]]
@@ -69,14 +69,14 @@ do
 
     elif [[ $GUESS_COUNT -lt $BEST_GAME ]]
     then 
-      echo $GUESS_COUNT is better than 
+      #echo $GUESS_COUNT is better than 
       NEW_HIGH_SCORE=$($PSQL "UPDATE players_stats SET best_game=$GUESS_COUNT WHERE username='$USERNAME_ENTERRED';")
     fi
       #add to game counter
       CURRENT_GAME_COUNT=$($PSQL "SELECT games_played FROM players_stats WHERE username='$USERNAME_ENTERRED';")
-      echo current game count $CURRENT_GAME_COUNT
+      #echo current game count $CURRENT_GAME_COUNT
       NEW_GAME_COUNT=$(( $CURRENT_GAME_COUNT + 1 ))
-      echo new game count $NEW_GAME_COUNT
+      #echo new game count $NEW_GAME_COUNT
       UPDATE_GAME_COUNT=$($PSQL "UPDATE players_stats SET games_played=$NEW_GAME_COUNT WHERE username='$USERNAME_ENTERRED';")
       #exit loop
       i=$(( $i + 1000 ))
